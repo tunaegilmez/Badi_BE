@@ -13,6 +13,8 @@ const router = express.Router();
  *   get:
  *     summary: Tüm kullanıcıları getir
  *     description: Kullanıcı listesini döndürür.
+ *     tags:
+ *       - User
  *     responses:
  *       200:
  *         description: Başarılı istek
@@ -41,6 +43,8 @@ router.get("/", getAllUsers);
  *   post:
  *     summary: Yeni bir kullanıcı oluştur
  *     description: Kullanıcı oluşturmak için gerekli bilgileri alır ve yeni bir kullanıcı ekler.
+ *     tags:
+ *       - User
  *     requestBody:
  *       required: true
  *       content:
@@ -85,6 +89,8 @@ router.post("/", createUser);
  *   delete:
  *     summary: Belirtilen ID'ye sahip kullanıcıyı sil
  *     description: Kullanıcı ID'sine göre silinir.
+ *     tags:
+ *       - User
  *     parameters:
  *       - in: path
  *         name: id

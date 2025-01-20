@@ -14,6 +14,20 @@ const options = {
         url: "http://localhost:3000", // API'nizin çalıştığı sunucu adresini belirtin
       },
     ],
+    security: [
+      {
+        BearerAuth: [], // Bearer token ile güvenlik sağlamak için
+      },
+    ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.js"], // API tanımlamalarının bulunduğu dosyalar
 };
