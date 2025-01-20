@@ -3,17 +3,19 @@ const express = require("express");
 const setupSwagger = require("../swagger");
 const sequelize = require("./config/database");
 const userRoutes = require("./routes/user.routes");
-const universityRoutes = require("./routes/university.routes");
-const facultyRoutes = require("./routes/faculty.routes");
+const authRoutes = require("./routes/auth.routes");
+const authMiddleware = require("./middlewares/authMiddleware");
 
 const app = express();
 app.use(express.json());
 
 setupSwagger(app);
 
+app.get("/", authMiddleware, (req, res) => {
+  res.send("WELCOME TO BADI");
+});
 app.use("/users", userRoutes);
-app.use("/university", universityRoutes);
-app.use("/faculty", facultyRoutes);
+app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 
