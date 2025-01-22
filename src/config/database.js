@@ -11,4 +11,14 @@ const sequelize = new Sequelize(
   }
 );
 
+// Bağlantıyı test et
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Veritabanı bağlantısı başarılı!");
+  })
+  .catch((err) => {
+    console.error("Veritabanı bağlantısı başarısız:", err);
+  });
+
 module.exports = sequelize;
