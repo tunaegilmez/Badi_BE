@@ -31,9 +31,19 @@ const router = express.Router();
  *                     type: string
  *                   surname:
  *                     type: string
- *                   password:
+ *                   email:
  *                     type: string
- *
+ *                   username:
+ *                     type: string
+ *                   profileImage:
+ *                     type: string
+ *                     nullable: true
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
  */
 router.get("/", getAllUsers);
 
@@ -58,9 +68,19 @@ router.get("/", getAllUsers);
  *               surname:
  *                 type: string
  *                 example: "Yılmaz"
+ *               email:
+ *                 type: string
+ *                 example: "ahmet@example.com"
+ *               username:
+ *                 type: string
+ *                 example: "ahmety"
  *               password:
  *                 type: string
  *                 example: "güçlüşifre"
+ *               profileImage:
+ *                 type: string
+ *                 example: "https://example.com/profile.jpg"
+ *                 nullable: true
  *     responses:
  *       201:
  *         description: Kullanıcı başarıyla oluşturuldu.
@@ -78,6 +98,12 @@ router.get("/", getAllUsers);
  *                 surname:
  *                   type: string
  *                   example: "Yılmaz"
+ *                 email:
+ *                   type: string
+ *                   example: "ahmet@example.com"
+ *                 username:
+ *                   type: string
+ *                   example: "ahmety"
  *       400:
  *         description: Geçersiz giriş verisi.
  */

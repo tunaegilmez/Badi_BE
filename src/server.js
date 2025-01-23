@@ -6,6 +6,7 @@ const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
 const authMiddleware = require("./middlewares/authMiddleware");
 const categoriesRoutes = require("./routes/categories.routes");
+const eventRoutes = require("./routes/event.routes");
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,7 @@ app.get("/", authMiddleware, (req, res) => {
 app.use("/users", userRoutes);
 app.use("/auth", authRoutes);
 app.use("/categories", categoriesRoutes);
+app.use("/events", eventRoutes);
 
 const PORT = process.env.PORT || 3000;
 
