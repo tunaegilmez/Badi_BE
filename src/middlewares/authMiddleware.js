@@ -4,6 +4,8 @@ const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key";
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
+  console.log(req.headers);
+
   if (!authHeader) {
     return res.status(401).json({ error: "Access Denied. No token provided." });
   }

@@ -5,6 +5,9 @@ const {
   createEvent,
   updateEvent,
   deleteEvent,
+  joinEvent,
+  updateParticipationStatus,
+  getParticipants,
 } = require("../controllers/event.controller");
 const authMiddleware = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -225,10 +228,124 @@ const router = express.Router();
  *         description: Etkinlik bulunamadı
  */
 
+/**
+ * @swagger
+ * /events/{id}/join:
+ *   post:
+ *     summary: Etkinliğe katılım talebi gönder
+ *     description: Kullanıcı, belirtilen etkinliğe katılım talebi gönderir. Aynı etkinliğe birden fazla kez başvuramaz.
+ *     tags:
+ *       - Event Participation
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Katılım talebi gönderilecek etkinliğin ID'si.
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       201:
+ *         description: Katılım talebi başarıyla gönderildi.
+ *       400:
+ *         description: Kullanıcı zaten bu etkinliğe başvurmuş.
+ *       500:
+ *         description: Sunucu hatası.
+ */
+
+/**
+ * @swagger
+ * /events/{id}/update-status:
+ *   patch:
+ *     summary: Katılım talebinin durumunu güncelle
+ *     description: Etkinlik sahibi, katılım taleplerini kabul veya reddedebilir.
+ *     tags:
+ *       - Event Participation
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Katılım talebi güncellenecek etkinliğin ID'si.
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               participationId:
+ *                 type: integer
+ *                 example: 10
+ *               status:
+ *                 type: string
+ *                 enum: ["accepted", "rejected"]
+ *                 example: "accepted"
+ *     responses:
+ *       200:
+ *         description: Katılım talebi başarıyla güncellendi.
+ *       400:
+ *         description: Geçersiz durum.
+ *       404:
+ *         description: Katılım talebi bulunamadı.
+ *       500:
+ *         description: Sunucu hatası.
+ */
+
+/**
+ * @swagger
+ * /events/{id}/participants:
+ *   get:
+ *     summary: Etkinliğe kabul edilen katılımcıları listele
+ *     description: Belirtilen etkinliğe kabul edilen kullanıcıları getirir.
+ *     tags:
+ *       - Event Participation
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Katılımcıları listelenecek etkinliğin ID'si.
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: Etkinliğe katılan kullanıcılar başarıyla listelendi.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 5
+ *                   name:
+ *                     type: string
+ *                     example: "Ali"
+ *                   status:
+ *                     type: string
+ *                     example: "accepted"
+ *       500:
+ *         description: Sunucu hatası.
+ */
+
 router.get("/", getEvents);
 router.get("/:id", getEventById);
 router.post("/", authMiddleware, createEvent);
 router.put("/:id", authMiddleware, updateEvent);
 router.delete("/:id", authMiddleware, deleteEvent);
+
+// ✅ Katılım Talebi Gönder
+router.post("/:id/join", authMiddleware, joinEvent);
+
+// ✅ Katılım Durumunu Güncelle (Etkinlik Sahibi Kullanır)
+router.patch("/:id/update-status", authMiddleware, updateParticipationStatus);
+
+// ✅ Etkinlik Katılımcılarını Listele
+router.get("/:id/participants", authMiddleware, getParticipants);
 
 module.exports = router;

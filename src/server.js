@@ -7,8 +7,11 @@ const authRoutes = require("./routes/auth.routes");
 const authMiddleware = require("./middlewares/authMiddleware");
 const categoriesRoutes = require("./routes/categories.routes");
 const eventRoutes = require("./routes/event.routes");
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
 setupSwagger(app);
