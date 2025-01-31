@@ -1,4 +1,4 @@
-export const emailValidator = (value) => {
+const emailValidator = (value) => {
   if (
     value &&
     !!value.match(
@@ -9,3 +9,5 @@ export const emailValidator = (value) => {
   }
   return false;
 };
+
+module.exports = { emailValidator };
