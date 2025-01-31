@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
+const { emailValidator } = require("../helper/validator");
 
 const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key";
 
@@ -8,21 +9,25 @@ exports.register = async (req, res) => {
   try {
     const { name, surname, email, username, password } = req.body;
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser)
-      return res.status(400).json({ error: "User already exists" });
+    if (emailValidator(email)) {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser)
+        return res.status(400).json({ error: "User already exists" });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
-      surname,
-      email,
-      username,
-      password: hashedPassword,
-    });
+      const user = await User.create({
+        name,
+        surname,
+        email,
+        username,
+        password: hashedPassword,
+      });
 
-    res.status(201).json({ message: "User created", userId: user.id });
+      res.status(201).json({ message: "User created", userId: user.id });
+    } else {
+      res.status(400).json({ error: "Lütfen doğru bir mail adresi giriniz." });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
