@@ -11,6 +11,7 @@ const {
 } = require("../controllers/event.controller");
 const authMiddleware = require("../middlewares/authMiddleware");
 const router = express.Router();
+const { generalLimiter, strictLimiter } = require("../middlewares/rateLimit");
 
 /**
  * @swagger
@@ -333,19 +334,29 @@ const router = express.Router();
  *         description: Sunucu hatası.
  */
 
-router.get("/", getEvents);
-router.get("/:id", getEventById);
-router.post("/", authMiddleware, createEvent);
-router.put("/:id", authMiddleware, updateEvent);
-router.delete("/:id", authMiddleware, deleteEvent);
+router.get("/", generalLimiter, getEvents);
+router.get("/:id", generalLimiter, getEventById);
+router.post("/", authMiddleware, strictLimiter, createEvent);
+router.put("/:id", authMiddleware, strictLimiter, updateEvent);
+router.delete("/:id", authMiddleware, strictLimiter, deleteEvent);
 
 // ✅ Katılım Talebi Gönder
-router.post("/:id/join", authMiddleware, joinEvent);
+router.post("/:id/join", authMiddleware, strictLimiter, joinEvent);
 
 // ✅ Katılım Durumunu Güncelle (Etkinlik Sahibi Kullanır)
-router.patch("/:id/update-status", authMiddleware, updateParticipationStatus);
+router.patch(
+  "/:id/update-status",
+  authMiddleware,
+  strictLimiter,
+  updateParticipationStatus
+);
 
 // ✅ Etkinlik Katılımcılarını Listele
-router.get("/:id/participants", authMiddleware, getParticipants);
+router.get(
+  "/:id/participants",
+  authMiddleware,
+  generalLimiter,
+  getParticipants
+);
 
 module.exports = router;

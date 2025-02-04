@@ -3,6 +3,7 @@ const {
   getAllCategories,
   getCategoryById,
 } = require("../controllers/categories.controller");
+const { generalLimiter } = require("../middlewares/rateLimit");
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ const router = express.Router();
  *                   name:
  *                     type: string
  */
-router.get("/", getAllCategories);
+router.get("/", generalLimiter, getAllCategories);
 
 /**
  * @swagger
@@ -61,6 +62,6 @@ router.get("/", getAllCategories);
  *       404:
  *         description: Kategori bulunamadı.
  */
-router.get("/:id", getCategoryById);
+router.get("/:id", generalLimiter, getCategoryById);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require("express");
 const { register, login } = require("../controllers/auth.controller");
+const { authLimiter } = require("../middlewares/rateLimit");
 
 const router = express.Router();
 
@@ -107,6 +108,6 @@ router.post("/register", register);
  *       500:
  *         description: Sunucu hatası
  */
-router.post("/login", login);
+router.post("/login", authLimiter, login);
 
 module.exports = router;
