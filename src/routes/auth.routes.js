@@ -1,5 +1,10 @@
 const express = require("express");
-const { register, login } = require("../controllers/auth.controller");
+const {
+  register,
+  login,
+  forgetPass,
+  resetPass,
+} = require("../controllers/auth.controller");
 const { authLimiter } = require("../middlewares/rateLimit");
 
 const router = express.Router();
@@ -109,5 +114,95 @@ router.post("/register", register);
  *         description: Sunucu hatası
  */
 router.post("/login", authLimiter, login);
+
+/**
+ * @swagger
+ * /auth/forget-password:
+ *   post:
+ *     summary: Şifre sıfırlama kodu gönder
+ *     description: Kullanıcının e-posta adresine 6 haneli bir şifre sıfırlama kodu gönderir.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Kullanıcının e-posta adresi
+ *                 example: user@example.com
+ *             required:
+ *               - email
+ *     responses:
+ *       200:
+ *         description: Şifre sıfırlama kodu e-posta olarak gönderildi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Reset code sent to your email."
+ *       404:
+ *         description: Kullanıcı bulunamadı
+ *       500:
+ *         description: Sunucu hatası
+ */
+router.post("/forget-password", forgetPass);
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Şifreyi sıfırla
+ *     description: Kullanıcı doğru kodu girdikten sonra yeni bir şifre belirler.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Kullanıcının e-posta adresi
+ *                 example: user@example.com
+ *               code:
+ *                 type: string
+ *                 description: Kullanıcının e-posta ile aldığı 6 haneli doğrulama kodu
+ *                 example: "123456"
+ *               newPassword:
+ *                 type: string
+ *                 description: Kullanıcının yeni şifresi
+ *                 example: "newStrongPass123"
+ *             required:
+ *               - email
+ *               - code
+ *               - newPassword
+ *     responses:
+ *       200:
+ *         description: Şifre başarıyla sıfırlandı
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Password successfully reset."
+ *       400:
+ *         description: Geçersiz veya süresi dolmuş doğrulama kodu
+ *       404:
+ *         description: Kullanıcı bulunamadı
+ *       500:
+ *         description: Sunucu hatası
+ */
+router.post("/reset-password", resetPass);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user.model");
 const { emailValidator } = require("../helper/validator");
@@ -58,6 +59,67 @@ exports.login = async (req, res) => {
     );
 
     res.json({ token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+const resetCodes = {};
+
+exports.forgetPass = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    resetCodes[email] = {
+      code: resetCode,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+    };
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset Code",
+      text: `Your password reset code is: ${resetCode}. This code will expire in 10 minutes.`,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.json({ message: "Reset code sent to your email." });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.resetPass = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (
+      !resetCodes[email] ||
+      resetCodes[email].code !== code ||
+      resetCodes[email].expiresAt < Date.now()
+    ) {
+      return res.status(400).json({ error: "Invalid or expired reset code" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await user.update({ password: hashedPassword });
+
+    delete resetCodes[email];
+    res.json({ message: "Password successfully reset." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
