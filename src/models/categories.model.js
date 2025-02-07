@@ -11,6 +11,10 @@ const Categories = sequelize.define("Categories", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  icon_name: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   parent_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
