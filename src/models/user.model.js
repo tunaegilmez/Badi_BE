@@ -28,6 +28,14 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  age: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  gender: {
+    type: DataTypes.ENUM("male", "female", "-"),
+    allowNull: true,
+  },
 });
 
 module.exports = User;
