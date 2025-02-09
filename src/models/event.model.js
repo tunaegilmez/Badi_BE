@@ -36,6 +36,29 @@ const Event = sequelize.define("Event", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  minAge: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  maxAge: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  genderPreference: {
+    type: DataTypes.ENUM("male", "female", "any"),
+    allowNull: false,
+    defaultValue: "any",
+  },
+  maxParticipants: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 50,
+  },
+  currentParticipants: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 });
 
 User.hasMany(Event, { foreignKey: "createdBy" });

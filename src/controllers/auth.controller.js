@@ -51,6 +51,8 @@ exports.login = async (req, res) => {
         surname: user.surname,
         username: user.username,
         email: user.email,
+        age: user.age,
+        gender: user.gender,
       },
       SECRET_KEY,
       {

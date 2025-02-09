@@ -8,15 +8,33 @@ exports.createEvent = async (req, res) => {
       title,
       description,
       eventDate,
-      createdBy,
       locationTitle,
       location,
+      minAge,
+      maxAge,
+      genderPreference,
+      maxParticipants,
     } = req.body;
 
     const userId = req.user.userId;
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+    }
+
+    if (minAge < 0 || maxAge < 0 || minAge > maxAge) {
+      return res.status(400).json({ message: "Geçersiz yaş aralığı" });
+    }
+
+    const validGenders = ["male", "female", "any"];
+    if (!validGenders.includes(genderPreference)) {
+      return res.status(400).json({ message: "Geçersiz cinsiyet tercihi" });
+    }
+
+    if (maxParticipants <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Maksimum kişi sayısı 1 veya daha büyük olmalıdır" });
     }
 
     const event = await Event.create({
@@ -26,6 +44,11 @@ exports.createEvent = async (req, res) => {
       createdBy: userId,
       locationTitle,
       location,
+      minAge,
+      maxAge,
+      genderPreference,
+      maxParticipants,
+      currentParticipants: 0,
     });
 
     res.status(201).json(event);
@@ -121,8 +144,42 @@ exports.deleteEvent = async (req, res) => {
 exports.joinEvent = async (req, res) => {
   const { id: eventId } = req.params;
   const userId = req.user.userId;
+  const userAge = req.user.age;
+  const userGender = req.user.gender;
 
   try {
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Etkinlik bulunamadı." });
+    }
+
+    if (!userAge || !userGender) {
+      return res
+        .status(403)
+        .json({ message: "Profilinizi tamamlamanız lazım." });
+    }
+
+    if (userAge < event.minAge || userAge > event.maxAge) {
+      return res
+        .status(403)
+        .json({ message: "Yaş aralığına uygun değilsiniz." });
+    }
+
+    if (
+      event.genderPreference !== "any" &&
+      userGender !== event.genderPreference
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Bu etkinlik için uygun cinsiyette değilsiniz." });
+    }
+
+    if (event.currentParticipants >= event.maxParticipants) {
+      return res.status(403).json({
+        message: "Bu etkinlik için maksimum katılımcı sayısına ulaşıldı.",
+      });
+    }
+
     const existingRequest = await EventParticipation.findOne({
       where: { userId, eventId },
     });
@@ -134,9 +191,13 @@ exports.joinEvent = async (req, res) => {
     }
 
     const participation = await EventParticipation.create({ userId, eventId });
-    res
-      .status(201)
-      .json({ message: "Katılım talebi başarıyla gönderildi.", participation });
+
+    await event.update({ currentParticipants: event.currentParticipants + 1 });
+
+    res.status(201).json({
+      message: "Katılım talebi başarıyla gönderildi.",
+      participation,
+    });
   } catch (error) {
     res
       .status(500)
