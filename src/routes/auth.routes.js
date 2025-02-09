@@ -169,10 +169,6 @@ router.post("/forget-password", forgetPass);
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
- *                 description: Kullanıcının e-posta adresi
- *                 example: user@example.com
  *               code:
  *                 type: string
  *                 description: Kullanıcının e-posta ile aldığı 6 haneli doğrulama kodu
@@ -182,7 +178,6 @@ router.post("/forget-password", forgetPass);
  *                 description: Kullanıcının yeni şifresi
  *                 example: "newStrongPass123"
  *             required:
- *               - email
  *               - code
  *               - newPassword
  *     responses:

@@ -103,23 +103,26 @@ exports.forgetPass = async (req, res) => {
 
 exports.resetPass = async (req, res) => {
   try {
-    const { email, code, newPassword } = req.body;
+    const { code, newPassword } = req.body;
+
+    const email = Object.keys(resetCodes).find(
+      (key) => resetCodes[key]?.code === code
+    );
+
+    if (!email)
+      return res.status(400).json({ error: "Invalid or expired code" });
+
     const user = await User.findOne({ where: { email } });
 
-    if (!user) return res.status(404).json({ error: "User not found" });
-    if (
-      !resetCodes[email] ||
-      resetCodes[email].code !== code ||
-      resetCodes[email].expiresAt < Date.now()
-    ) {
-      return res.status(400).json({ error: "Invalid or expired reset code" });
-    }
+    if (!user) return res.status(400).json({ error: "User not found" });
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await user.update({ password: hashedPassword });
+    user.password = hashedPassword;
+    await user.save();
 
     delete resetCodes[email];
-    res.json({ message: "Password successfully reset." });
+
+    res.json({ message: "Password successfully reset" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
