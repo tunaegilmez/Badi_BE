@@ -225,7 +225,11 @@ exports.updateParticipationStatus = async (req, res) => {
       return res.status(404).json({ message: "Etkinlik bulunamadı." });
     }
 
-    if (participation.status === "pending" && status === "accepted") {
+    if (
+      (participation.status === "pending" ||
+        participation.status === "rejected") &&
+      status === "accepted"
+    ) {
       await event.update({
         currentParticipants: event.currentParticipants + 1,
       });
