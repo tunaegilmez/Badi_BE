@@ -216,19 +216,38 @@ exports.updateParticipationStatus = async (req, res) => {
 
   try {
     const participation = await EventParticipation.findByPk(participationId);
-
     if (!participation) {
       return res.status(404).json({ message: "Katılım talebi bulunamadı." });
     }
 
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Etkinlik bulunamadı." });
+    }
+
+    if (participation.status === "pending" && status === "accepted") {
+      await event.update({
+        currentParticipants: event.currentParticipants + 1,
+      });
+    }
+
+    if (participation.status === "accepted" && status === "rejected") {
+      await event.update({
+        currentParticipants: event.currentParticipants - 1,
+      });
+    }
+
     await participation.update({ status });
-    res
-      .status(200)
-      .json({ message: `Talep ${status} olarak güncellendi.`, participation });
+
+    res.status(200).json({
+      message: `Talep ${status} olarak güncellendi.`,
+      participation,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Durum güncelleme hatası.", error: error.message });
+    res.status(500).json({
+      message: "Durum güncelleme hatası.",
+      error: error.message,
+    });
   }
 };
 
