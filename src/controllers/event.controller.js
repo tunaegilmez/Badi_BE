@@ -235,7 +235,11 @@ exports.updateParticipationStatus = async (req, res) => {
       });
     }
 
-    if (participation.status === "accepted" && status === "rejected") {
+    if (
+      participation.status === "accepted" &&
+      status === "rejected" &&
+      event.currentParticipants > 0
+    ) {
       await event.update({
         currentParticipants: event.currentParticipants - 1,
       });
